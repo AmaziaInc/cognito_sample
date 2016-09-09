@@ -55,6 +55,26 @@ class window.CognitoWrapper
           successCallback(result)
     )
 
+  authenticateUser: (username, password, successCallback, failureCallback) ->
+    userPool = _getUserPool.call @
+
+    authenticationData = {
+      Username: username,
+      Password: password,
+    }
+
+    authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData)
+
+    userData = {
+      Username: username,
+      Pool: userPool
+    }
+    cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData)
+    cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: successCallback,
+      onFailure: failureCallback,
+    })
+
 
 showMessage = (targetNode, message_text, message_class)->
   messageAlert = targetNode
@@ -124,9 +144,36 @@ activation = (e)->
         showMessage($(".form-activation .message"), error, "alert-danger")
     )
 
+login = (e)->
+  e.preventDefault()
+  if cognitoWrapper.isReady
+    username = $('#loginEmail').val()
+    password = $('#loginPassword').val()
+
+    postLoginRequest = (idToken, accessToken) ->
+      $.post("/sessions",
+        {
+          'id_token': idToken,
+          'access_token': accessToken,
+        }, (data) ->
+          showMessage($('.form-login .message'), 'Login successful', 'alert-success')
+        , 'json'
+      )
+
+    cognitoWrapper.authenticateUser(username, password,
+      (result) ->
+        postLoginRequest(
+          result.getIdToken().getJwtToken(),
+          result.getAccessToken().getJwtToken())
+      ,
+      (error) ->
+        showMessage($('.form-login .message'), error, 'alert-danger')
+    )
+
 cognitoWrapper = new CognitoWrapper()
 $(document).on('click', '#user_add_btn', signUp)
 $(document).on('click', '#user_activation_btn', activation)
+$(document).on('click', '#user_login_btn', login)
 
 $(document).ready ->
   cognitoWrapper.setup('meta[name=AppInfo]')
