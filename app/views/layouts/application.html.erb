@@ -8,6 +8,11 @@
   <%= stylesheet_link_tag    'application', media: 'all' %>
   <%= javascript_include_tag 'application' %>
   <%= csrf_meta_tags %>
+  <meta name="AppInfo" content="Our app info"
+                         data-aws-region="<%= ENV['AWS_REGION'] %>"
+                         data-cognito-identity-pool-id="<%= ENV['COGNITO_IDENTITY_POOL_ID'] %>"
+                         data-cognito-user-pool-id="<%= ENV['COGNITO_USER_POOL_ID'] %>"
+                         data-cognito-client-id="<%= ENV['COGNITO_CLIENT_ID'] %>">
 </head>
 <body>
 
