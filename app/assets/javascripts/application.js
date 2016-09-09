@@ -13,4 +13,11 @@
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap-sprockets
+//= require jsbn
+//= require jsbn2
+//= require sjcl
+//= require moment.min
+//= require aws-cognito-sdk.min
+//= require amazon-cognito-identity.min
+//= require aws-sdk.min
 //= require_tree .
