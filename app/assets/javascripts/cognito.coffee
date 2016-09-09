@@ -87,6 +87,23 @@ class window.CognitoWrapper
       onFailure: failureCallback,
     })
 
+  logout: (successCallback, failureCallback) ->
+    userPool = _getUserPool.call @
+
+    cognitoUser = userPool.getCurrentUser()
+
+    if cognitoUser != null
+      cognitoUser.getSession(
+        (err, session) ->
+          if err
+            failureCallback(err)
+            return
+
+          cognitoUser.signOut()
+          successCallback()
+      )
+    else
+      successCallback()
 
 showMessage = (targetNode, message_text, message_class)->
   messageAlert = targetNode
@@ -97,6 +114,10 @@ showMessage = (targetNode, message_text, message_class)->
     messageAlert.fadeOut()
     messageAlert.removeClass(message_class)
   , 5000)
+
+goBackToHome = ->
+  url = "/"
+  $(location).attr("href", url)
 
 signUp = (e)->
   e.preventDefault()
@@ -144,6 +165,7 @@ activation = (e)->
           loginStatusManager.login(data['identity_id'])
           $('.form-activation').fadeOut()
           $('.success-box').fadeIn()
+          setTimeout(goBackToHome, 3000)
         , 'json'
       )
 
@@ -171,6 +193,7 @@ login = (e)->
         }, (data) ->
           loginStatusManager.login(data['identity_id'])
           showMessage($('.form-login .message'), 'Login successful', 'alert-success')
+          setTimeout(goBackToHome, 3000)
         , 'json'
       )
 
@@ -184,10 +207,23 @@ login = (e)->
         showMessage($('.form-login .message'), error, 'alert-danger')
     )
 
+logout = (e)->
+  e.preventDefault()
+  if cognitoWrapper.isReady
+    cognitoWrapper.logout(
+      ->
+        loginStatusManager.logout()
+        goBackToHome()
+      ,
+      (error)->
+        alert(error)
+   )
+
 cognitoWrapper = new CognitoWrapper()
 $(document).on('click', '#user_add_btn', signUp)
 $(document).on('click', '#user_activation_btn', activation)
 $(document).on('click', '#user_login_btn', login)
+$(document).on('click', '#user_logout_btn', logout)
 
 loginStatusManager = new LoginStatusManager('cognito_sample_id')
 
