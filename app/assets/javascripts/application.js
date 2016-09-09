@@ -20,4 +20,5 @@
 //= require aws-cognito-sdk.min
 //= require amazon-cognito-identity.min
 //= require aws-sdk.min
+//= require js.cookie-2.1.3.min
 //= require_tree .

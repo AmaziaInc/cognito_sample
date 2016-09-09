@@ -1,6 +1,18 @@
 # Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
+class LoginStatusManager
+  constructor: (@loginCookieName) ->
+
+  isLoggedIn: () ->
+    return Cookies.get(@loginCookieName) != undefined
+
+  login: (loginId) ->
+    Cookies.set(@loginCookieName, loginId, {expires: 30})
+
+  logout: ->
+    Cookies.remove(@loginCookieName)
+
 class window.CognitoWrapper
   constructor: ->
     @isReady = false
@@ -129,6 +141,7 @@ activation = (e)->
           'id_token': idToken,
           'access_token': accessToken
         }, (data) ->
+          loginStatusManager.login(data['identity_id'])
           $('.form-activation').fadeOut()
           $('.success-box').fadeIn()
         , 'json'
@@ -156,6 +169,7 @@ login = (e)->
           'id_token': idToken,
           'access_token': accessToken,
         }, (data) ->
+          loginStatusManager.login(data['identity_id'])
           showMessage($('.form-login .message'), 'Login successful', 'alert-success')
         , 'json'
       )
@@ -175,6 +189,16 @@ $(document).on('click', '#user_add_btn', signUp)
 $(document).on('click', '#user_activation_btn', activation)
 $(document).on('click', '#user_login_btn', login)
 
+loginStatusManager = new LoginStatusManager('cognito_sample_id')
+
 $(document).ready ->
   cognitoWrapper.setup('meta[name=AppInfo]')
 
+  if loginStatusManager.isLoggedIn()
+    $('#top_buttons').hide()
+    $('#login_and_signup_menus').hide()
+    $('#logged_in_menus').show()
+  else
+    $('#top_buttons').show()
+    $('#login_and_signup_menus').show()
+    $('#logged_in_menus').hide()
