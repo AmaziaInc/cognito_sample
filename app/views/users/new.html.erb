@@ -39,3 +39,62 @@
   </div>
   <div class="message alert alert-success">Registration complete.</div>
 </div>
+
+<br>
+
+<%= link_to("Login with Facebook", "javascript:void(0);", id: "fb-login-button", class: "btn btn-lg btn-primary") %>
+
+<script>
+function statusChangeCallback(response) {
+  // The response object is returned with a status field that lets the
+  // app know the current login status of the person.
+  // Full docs on the response object can be found in the documentation
+  // for FB.getLoginStatus().
+  if (response.status === 'connected') {
+    // Logged into your app and Facebook.
+    $.post("/users",
+      {
+        'login_type': 'facebook',
+        'fb_access_token': response.authResponse.accessToken,
+      }, function(data) {
+        loginStatusManager.login(data['identity_id']);
+        var url = "/";
+        $(location).attr("href", url);
+      }, 'json'
+    );
+  } else if (response.status === 'not_authorized') {
+    // The person is logged into Facebook, but not your app.
+  } else {
+    // The person is not logged into Facebook, so we're not sure if
+    // they are logged into this app or not.
+  }
+}
+
+window.fbAsyncInit = function() {
+  var appId = $('meta[name=AppInfo]').data('facebook-app-id');
+  FB.init({
+    appId      : appId,
+    xfbml      : true,
+    version    : 'v2.7'
+  });
+
+  document.getElementById('fb-login-button').addEventListener('click', function() {
+    //do the login
+    FB.login(function(response) {
+        if (response.authResponse) {
+          //user just authorized your app
+          statusChangeCallback(response);
+        }
+    }, {scope: 'public_profile', return_scopes: true});
+  }, false);
+};
+
+(function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "//connect.facebook.net/ja_JP/sdk.js";
+   fjs.parentNode.insertBefore(js, fjs);
+ }(document, 'script', 'facebook-jssdk'));
+</script>
+

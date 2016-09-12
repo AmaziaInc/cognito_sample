@@ -1,18 +1,6 @@
 # Place all the behaviors and hooks related to the matching controller here.
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
-class LoginStatusManager
-  constructor: (@loginCookieName) ->
-
-  isLoggedIn: () ->
-    return Cookies.get(@loginCookieName) != undefined
-
-  login: (loginId) ->
-    Cookies.set(@loginCookieName, loginId, {expires: 30})
-
-  logout: ->
-    Cookies.remove(@loginCookieName)
-
 class window.CognitoWrapper
   constructor: ->
     @isReady = false
@@ -159,6 +147,7 @@ activation = (e)->
     activationSuccessHandler = (idToken, accessToken)->
       $.post("/users",
         {
+          'login_type': 'user_pools',
           'id_token': idToken,
           'access_token': accessToken
         }, (data) ->
@@ -188,6 +177,7 @@ login = (e)->
     postLoginRequest = (idToken, accessToken) ->
       $.post("/sessions",
         {
+          'login_type': 'user_pools',
           'id_token': idToken,
           'access_token': accessToken,
         }, (data) ->
@@ -224,8 +214,6 @@ $(document).on('click', '#user_add_btn', signUp)
 $(document).on('click', '#user_activation_btn', activation)
 $(document).on('click', '#user_login_btn', login)
 $(document).on('click', '#user_logout_btn', logout)
-
-loginStatusManager = new LoginStatusManager('cognito_sample_id')
 
 $(document).ready ->
   cognitoWrapper.setup('meta[name=AppInfo]')

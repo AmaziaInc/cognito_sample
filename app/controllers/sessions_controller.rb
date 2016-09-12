@@ -5,7 +5,9 @@ class SessionsController < ApplicationController
   end
 
   def create
-    result = login(params[:id_token])
+    result = login_with_cognito_identity
+    # NOTE Do something to login.
+    # session[:identity_id] = result.identity_id
     render :json => {identity_id: result.identity_id}
   end
 end

@@ -9,6 +9,7 @@
   <%= javascript_include_tag 'application' %>
   <%= csrf_meta_tags %>
   <meta name="AppInfo" content="Our app info"
+                         data-facebook-app-id="<%= ENV['FACEBOOK_APP_ID'] %>"
                          data-aws-region="<%= ENV['AWS_REGION'] %>"
                          data-cognito-identity-pool-id="<%= ENV['COGNITO_IDENTITY_POOL_ID'] %>"
                          data-cognito-user-pool-id="<%= ENV['COGNITO_USER_POOL_ID'] %>"
